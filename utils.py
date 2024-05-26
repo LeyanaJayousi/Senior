@@ -18,24 +18,62 @@ import csv
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-
-def list_subfolders(folder_path):
-    subfolders = [f.path for f in os.scandir(folder_path) if f.is_dir()]
-    return subfolders
-
-
-def filter_and_create_csv(csv_file, fileName):
+def save_figures(figures_folder, plot_function_output):
     """
-    creating new csv files with ClassId < 20
+    Saves the given plot function output as PDF and PNG in the specified folder.
+
+    Parameters:
+    figures_folder (str): The folder where the figures will be saved.
+    plot_function_output (function): The function that creates the plot.
     """
-    df = pd.read_csv(csv_file)
-    df = df[df['ClassId'] <= 19]
-    new_dataset_path = os.path.join(paths.train_folder, 'new_csv')
+    # Ensure the figures folder exists
+    os.makedirs(figures_folder, exist_ok=True)
+
+    # Generate the figure
+    fig = plot_function_output()
+
+    # Define file paths for PDF and PNG
+    pdf_path = os.path.join(figures_folder, 'class_distribution.pdf')
+    png_path = os.path.join(figures_folder, 'class_distribution.png')
+
+    # Save the figure as PDF and PNG
+    fig.savefig(pdf_path, format='pdf')
+    fig.savefig(png_path, format='png')
+
+    plt.close(fig)
+
+def process_data(input_path):
+    """
+    Process the data based on the input type (CSV file or directory).
+    If it's a CSV file, filter and create a new CSV file.
+    If it's a directory, extract the first 20 folders and create a new dataset.
+    """
+    new_dataset_path = os.path.join(paths.dataset_path, 'new_dataset')
     os.makedirs(new_dataset_path, exist_ok=True)
-    new_csv_file = os.path.join(new_dataset_path, fileName)
-    df.to_csv(new_csv_file, index=False)
 
-    return new_csv_file
+    if input_path.endswith('.csv'):
+        # Handle CSV file
+        df = pd.read_csv(input_path)
+        df = df[df['ClassId'] <= 19]
+        file_name = os.path.basename(input_path)
+        new_csv_path = os.path.join(new_dataset_path, file_name)
+        df.to_csv(new_csv_path, index=False)
+        return new_csv_path
+    elif os.path.isdir(input_path):
+        # Handle directory
+        all_folders = [folder for folder in os.listdir(input_path) if os.path.isdir(os.path.join(input_path, folder))]
+        sorted_folders = sorted(all_folders, key=lambda x: int(x))[:20]
+        new_train_path = os.path.join(new_dataset_path, 'Train')
+        os.makedirs(new_train_path, exist_ok=True)
+        for folder in sorted_folders:
+            src = os.path.join(input_path, folder)
+            dst = os.path.join(new_train_path, folder)
+            shutil.copytree(src, dst)
+        return new_train_path
+    else:
+        raise ValueError("The input path must be a CSV file or a directory.")
+
+
 
 
 def get_unique_filename(prefix='model', suffix='.pt', folder='/content'):
@@ -45,26 +83,6 @@ def get_unique_filename(prefix='model', suffix='.pt', folder='/content'):
     unique_id = uuid.uuid4().hex[:8]
     filename = f"{prefix}_{unique_id}{suffix}"
     return os.path.join(folder, filename)
-
-
-def extract_20_classes(train_folder):
-    """
-    extracting first 20 folders (0-19) from train folder to minimize the dataset
-    """
-
-    all_folders = [folder for folder in os.listdir(
-        paths.train_folder) if os.path.isdir(os.path.join(paths.train_folder, folder))]
-    sorted_folders = sorted(all_folders, key=lambda x: int(x))[:20]
-    new_dataset_path = os.path.join(paths.train_folder, 'new_dataset')
-    os.makedirs(new_dataset_path, exist_ok=True)
-    new_train_path = os.path.join(new_dataset_path, 'Train')
-    os.makedirs(new_train_path, exist_ok=True)
-    for folder in sorted_folders:
-        src = os.path.join(paths.train_folder, folder)
-        dst = os.path.join(new_train_path, folder)
-        shutil.copytree(src, dst)
-
-    return new_train_path
 
 
 def Train(model, criterion, optimizer, num_epochs, batch_size, dataloaders, out_path):
