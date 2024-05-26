@@ -1,5 +1,5 @@
 import os
-import paths as paths
+import src.paths as paths
 import uuid
 import shutil
 import pandas as pd
@@ -59,7 +59,8 @@ def process_data(input_path):
         return new_csv_path
     elif os.path.isdir(input_path):
         # Handle directory
-        all_folders = [folder for folder in os.listdir(input_path) if os.path.isdir(os.path.join(input_path, folder))]
+        all_folders = [folder for folder in os.listdir(
+            input_path) if os.path.isdir(os.path.join(input_path, folder))]
         sorted_folders = sorted(all_folders, key=lambda x: int(x))[:20]
         new_train_path = os.path.join(new_dataset_path, 'Train')
         os.makedirs(new_train_path, exist_ok=True)

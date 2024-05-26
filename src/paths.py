@@ -14,3 +14,5 @@ meta_folder = os.path.join("data", "Meta")
 # new folders
 train_csv = os.path.join("data", "new_dataset", "Train.csv")
 train_new = os.path.join("data", "new_dataset", "Train")
+
+data_directory = "dataDIR"

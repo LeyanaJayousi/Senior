@@ -3,7 +3,7 @@ from utils import *
 from sklearn.metrics import f1_score, roc_auc_score
 from pathlib import Path
 from models.DeepLabTL import *
-from DiceLoss import *
+from .losses.DiceLoss import *
 
 
 def main_resnet101(data_directory, exp_directory, epochs, batch_size):
