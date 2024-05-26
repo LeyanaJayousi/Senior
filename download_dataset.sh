@@ -1,10 +1,6 @@
 #!/bin/bash
 
 # Check if the required commands are installed
-if ! command -v kaggle &> /dev/null; then
-    echo "kaggle CLI could not be found, please install it first (pip install kaggle)."
-    exit 1
-fi
 
 if ! command -v unzip &> /dev/null; then
     echo "unzip command could not be found, please install it first."

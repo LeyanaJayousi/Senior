@@ -1,4 +1,4 @@
-import paths
+import src.paths
 from utils import *
 import matplotlib.pyplot as plt
 import pandas as pd
@@ -48,9 +48,21 @@ def create_plot():
 
       return fig
 
+def print_folders(directory):
+    """
+    Print the names of folders (directories) inside the specified directory.
+    """
+    # Get a list of all entries in the directory
+    entries = os.listdir(directory)
+    
+    # Iterate over the entries
+    for entry in entries:
+        # Check if the entry is a directory
+        if os.path.isdir(os.path.join(directory, entry)):
+            print(entry)
+
 if __name__ == "__main__":
-
-
+  
   # Extracting first 20 classes
   new_train = process_data(paths.train_folder)
   meta_csv = process_data(paths.meta_path)

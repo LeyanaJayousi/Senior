@@ -7,37 +7,6 @@ from torchvision.datasets.vision import VisionDataset
 from PIL import Image
 from torch.utils.data import DataLoader
 
-
-def create_shape_mask(shape, image_shape, x1, y1, x2, y2):
-    # Initialize a blank mask with the same height and width as the image
-    mask = np.zeros(image_shape[:2], dtype=np.uint8)
-    if shape == 'circle':  # creating segmentation masks according to the shape of the traffic sign
-        center = (int((x1 + x2) / 2), int((y1 + y2) / 2))
-        radius = min(abs(x2 - x1), abs(y2 - y1)) // 2
-        cv2.circle(mask, center, radius, 255, -1)
-    elif shape == 'triangle':
-        points = np.array([[x1, y2], [x2, y2], [(x1 + x2) // 2, y1]], np.int32)
-        cv2.fillPoly(mask, [points], 255)
-    elif shape == 'inverse_triangle':
-        points = np.array([[x1, y1], [x2, y1], [(x1 + x2) // 2, y2]], np.int32)
-        cv2.fillPoly(mask, [points], 255)
-    elif shape == 'octagon':
-        points = np.array([[x1 + (x2 - x1) * 0.15, y1],
-                           [x2 - (x2 - x1) * 0.15, y1],
-                           [x2, y1 + (y2 - y1) * 0.3],
-                           [x2, y2 - (y2 - y1) * 0.3],
-                           [x2 - (x2 - x1) * 0.15, y2],
-                           [x1 + (x2 - x1) * 0.15, y2],
-                           [x1, y2 - (y2 - y1) * 0.3],
-                           [x1, y1 + (y2 - y1) * 0.3]], np.int32)
-        cv2.fillPoly(mask, [points], 255)
-    elif shape == 'diamond':
-        points = np.array([[(x1 + x2) // 2, y1], [x2, (y1 + y2) // 2],
-                           [(x1 + x2) // 2, y2], [x1, (y1 + y2) // 2]], np.int32)
-        cv2.fillPoly(mask, [points], 255)
-    return mask
-
-
 class SegmentationDataset(VisionDataset):
 
     def __init__(self,
@@ -157,3 +126,9 @@ def get_dataloader_single_folder(data_dir2,
         for x in ['Train', 'Test']
     }
     return dataloaders
+
+if __name__ == "__main__":
+    # Destination path
+    destination_path = 'data_dir'
+
+    create_and_copy_folders(paths.train_new, 'segmentation_masks', destination_path)

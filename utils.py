@@ -18,6 +18,7 @@ import csv
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
+
 def save_figures(figures_folder, plot_function_output, file_name):
     """
     Saves the given plot function output as PDF and PNG in the specified folder.
@@ -37,6 +38,7 @@ def save_figures(figures_folder, plot_function_output, file_name):
     fig.savefig(png_path, format='png')
 
     plt.close(fig)
+
 
 def process_data(input_path):
     """
@@ -68,8 +70,6 @@ def process_data(input_path):
         return new_train_path
     else:
         raise ValueError("The input path must be a CSV file or a directory.")
-
-
 
 
 def get_unique_filename(prefix='model', suffix='.pt', folder='/content'):
@@ -193,37 +193,6 @@ def capture_output(func, *args, **kwargs):
         return sys.stdout.getvalue().splitlines()
     finally:
         sys.stdout = old_stdout
-
-
-def create_and_copy_folders(source_train_path, source_mask_path, destination_path):
-    """
-    Creates 'Images' and 'Masks' directories in the specified destination path
-    and copies image files from the source training and mask paths into these
-    directories, renaming them sequentially.
-    """
-    if not os.path.exists(destination_path):
-        os.makedirs(destination_path)
-
-    train_dir = os.path.join(destination_path, 'Images')
-    mask_dir = os.path.join(destination_path, 'Masks')
-    os.makedirs(train_dir, exist_ok=True)
-    os.makedirs(mask_dir, exist_ok=True)
-
-    train_image_counter = 1
-    for subdir, _, files in os.walk(source_train_path):
-        for file in files:
-            if file.endswith(('png', 'jpg', 'jpeg')):
-                shutil.copy(os.path.join(subdir, file), os.path.join(
-                    train_dir, f"Image{train_image_counter}.jpg"))
-                train_image_counter += 1
-
-    mask_image_counter = 1
-    for subdir, _, files in os.walk(source_mask_path):
-        for file in files:
-            if file.endswith(('png', 'jpg', 'jpeg')):
-                shutil.copy(os.path.join(subdir, file), os.path.join(
-                    mask_dir, f"Image{mask_image_counter}_label.png"))
-                mask_image_counter += 1
 
 
 def createDeepLabv3(outputchannels=1):
