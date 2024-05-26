@@ -18,13 +18,9 @@ import csv
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-def save_figures(figures_folder, plot_function_output):
+def save_figures(figures_folder, plot_function_output, file_name):
     """
     Saves the given plot function output as PDF and PNG in the specified folder.
-
-    Parameters:
-    figures_folder (str): The folder where the figures will be saved.
-    plot_function_output (function): The function that creates the plot.
     """
     # Ensure the figures folder exists
     os.makedirs(figures_folder, exist_ok=True)
@@ -33,8 +29,8 @@ def save_figures(figures_folder, plot_function_output):
     fig = plot_function_output()
 
     # Define file paths for PDF and PNG
-    pdf_path = os.path.join(figures_folder, 'class_distribution.pdf')
-    png_path = os.path.join(figures_folder, 'class_distribution.png')
+    pdf_path = os.path.join(figures_folder, f'{file_name}.pdf')
+    png_path = os.path.join(figures_folder, f'{file_name}.png')
 
     # Save the figure as PDF and PNG
     fig.savefig(pdf_path, format='pdf')
