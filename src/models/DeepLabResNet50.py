@@ -24,7 +24,7 @@ def createDeepLabv3(outputchannels=1):
     return model
 
 
-def main_resnet50(data_directory, exp_directory, num_epochs, batch_size, loss_fn, lr, checkpoint_path, device="cpu"):
+def main_resnet50(data_directory, exp_directory, num_epochs, batch_size, loss_fn, lr, checkpoint_path, log_name, device="cpu"):
 
     model = createDeepLabv3()  # Create the DeepLabv3 model with ResNet50 architecture
     model.train()
@@ -52,5 +52,5 @@ def main_resnet50(data_directory, exp_directory, num_epochs, batch_size, loss_fn
                     metrics=metrics,
                     num_epochs=num_epochs,
                     checkpoint_path=checkpoint_path,
-                    log_name="resnet50.csv",
+                    log_name=log_name,
                     device=device)

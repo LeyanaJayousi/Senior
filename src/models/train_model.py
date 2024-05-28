@@ -76,7 +76,10 @@ def train_model(model, criterion, dataloaders, optimizer, metrics, bpath,
                 best_loss = loss
                 best_model_wts = copy.deepcopy(model.state_dict())
 
-        torch.save(model, os.path.join(checkpoint_path, 'weights.pt'))  # TODO
+        if not os.path.exists(checkpoint_path):
+            os.makedirs(checkpoint_path)
+        torch.save(model.state_dict(), os.path.join(checkpoint_path, 'weights.pt'))
+        #torch.save(model, os.path.join(checkpoint_path, 'weights.pt'))  # TODO
 
     time_elapsed = time.time() - since
     print('Training complete in {:.0f}m {:.0f}s'.format(
