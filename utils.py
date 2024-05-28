@@ -18,16 +18,62 @@ import csv
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
+def plot_training_results(log_file_path):
+    """
+    Plot results for deeplab models.
+    """
+    with open(log_file_path, 'r') as file:
+        reader = csv.DictReader(file)
+        epochs = []
+        losses = []
+        fone = []
+        aurocs = []
+        for row in reader:
+            epochs.append(int(row['epoch']))
+            losses.append(float(row['Train_loss']))
+            fone.append(float(row['Train_f1_score']))
+            aurocs.append(float(row['Train_auroc']))
 
-def save_figures(figures_folder, plot_function_output, file_name):
+    # Create plots
+    fig = plt.figure(figsize=(15, 5))
+
+    # Plot loss
+    plt.subplot(1, 3, 1)
+    plt.plot(epochs, losses, marker='o')
+    plt.xlabel('Epoch')
+    plt.ylabel('Loss')
+    plt.title('Training Loss')
+
+    # Plot F1 score
+    plt.subplot(1, 3, 2)
+    plt.plot(epochs, fone, marker='o', color='green')
+    plt.xlabel('Epoch')
+    plt.ylabel('F1 score')
+    plt.title('Training F1 score')
+
+    # Plot AUC-ROC value
+    plt.subplot(1, 3, 3)
+    plt.plot(epochs, aurocs, marker='o', color='orange')
+    plt.xlabel('Epoch')
+    plt.ylabel('AUC-ROC value')
+    plt.title('Training AUC-ROC value')
+
+    plt.tight_layout()
+    
+    return fig
+
+def save_figures(figures_folder, plot_function, file_name, *args):
     """
     Saves the given plot function output as PDF and PNG in the specified folder.
     """
     # Ensure the figures folder exists
     os.makedirs(figures_folder, exist_ok=True)
 
-    # Generate the figure
-    fig = plot_function_output()
+    # Check if the plot function requires arguments and call accordingly
+    if args:
+        fig = plot_function(*args)
+    else:
+        fig = plot_function()
 
     # Define file paths for PDF and PNG
     pdf_path = os.path.join(figures_folder, f'{file_name}.pdf')
@@ -196,47 +242,6 @@ def capture_output(func, *args, **kwargs):
         sys.stdout = old_stdout
 
 
-def createDeepLabv3(outputchannels=1):
-    """
-    Creating DeepLab model with ResNet50 architecture
-    """
-
-    model = torch.hub.load('pytorch/vision:v0.10.0',
-                           'deeplabv3_resnet50', pretrained=True)
-
-    model.classifier = DeepLabHead(2048, outputchannels)
-
-    model.train()
-    return model
-
-
-def createDeepLabv3_101(outputchannels=1):
-    """
-    Creating DeepLab model with ResNet101 architecture
-    """
-
-    model = torch.hub.load('pytorch/vision:v0.10.0',
-                           'deeplabv3_resnet101', pretrained=True)
-
-    model.classifier = DeepLabHead(2048, outputchannels)
-
-    model.train()
-    return model
-
-
-def createDeepLabv3_mobileNet(outputchannels=1):
-    """
-    Creating DeepLab model with MobileNet architecture
-    """
-
-    model = torch.hub.load('pytorch/vision:v0.10.0',
-                           'deeplabv3_mobilenet_v3_large', pretrained=True)
-
-    model.classifier = DeepLabHead(960, outputchannels)
-
-    model.train()
-    return model
-
 
 def train_model(model, criterion, dataloaders, optimizer, metrics, bpath,
                 num_epochs):
@@ -313,47 +318,3 @@ def train_model(model, criterion, dataloaders, optimizer, metrics, bpath,
 
     model.load_state_dict(best_model_wts)
     return model
-
-
-def plot_training_results(log_file_path):
-    """
-    Plot results for deeplab models
-    """
-    with open(log_file_path, 'r') as file:
-        reader = csv.DictReader(file)
-        epochs = []
-        losses = []
-        fone = []
-        aurocs = []
-        for row in reader:
-            epochs.append(int(row['epoch']))
-            losses.append(float(row['Train_loss']))
-            fone.append(float(row['Train_f1_score']))
-            aurocs.append(float(row['Train_auroc']))
-
-    # Create plots
-    plt.figure(figsize=(15, 5))
-
-    # Plot loss
-    plt.subplot(1, 3, 1)
-    plt.plot(epochs, losses, marker='o')
-    plt.xlabel('Epoch')
-    plt.ylabel('Loss')
-    plt.title('Training Loss')
-
-    # Plot F1 score
-    plt.subplot(1, 3, 2)
-    plt.plot(epochs, fone, marker='o', color='green')
-    plt.xlabel('Epoch')
-    plt.ylabel('F1 score')
-    plt.title('Training F1 score')
-
-    # Plot AUC-ROC value
-    plt.subplot(1, 3, 3)
-    plt.plot(epochs, aurocs, marker='o', color='orange')
-    plt.xlabel('Epoch')
-    plt.ylabel('AUC-ROC value')
-    plt.title('Training AUC-ROC value')
-
-    plt.tight_layout()
-    plt.show()
