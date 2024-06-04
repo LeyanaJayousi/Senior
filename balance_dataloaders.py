@@ -1,20 +1,25 @@
-from configparser import ConfigParser
+import os
 import torch
 import torch.nn as nn
-from torch.utils import data
 import torch.optim as optim
 import torchvision.transforms as T
+import torch.nn.functional as F
+
+import numpy as np
+import os
+import src.paths as paths
+from utils import *
+from torch.utils import data
+from torchvision import models
+from collections import defaultdict
+from configparser import ConfigParser
 from torchvision import datasets
 from torchvision.datasets import ImageFolder
 from torch.utils.data import WeightedRandomSampler
-from torch.utils.data import DataLoader, random_split, Dataset
 from torchvision.datasets.vision import VisionDataset
+from torch.utils.data import DataLoader, random_split, Dataset
 from torchvision.models.segmentation.deeplabv3 import DeepLabHead
-from torchvision import models
-import torch.nn.functional as F
-from utils import *
-import src.paths as paths
-from collections import defaultdict
+
 
 
 def create_balanced_dataloaders(dataset_, train_ratio):
@@ -61,11 +66,11 @@ def count_occurrences(dataloader):
 
 
 if __name__ == '__main__':
-    train_ratio = 0.8  # TODO: move to config
-
+    
     config = ConfigParser()
     config.read("config.ini")
 
+    train_ratio = config.getfloat("Preprocessing", "train_ratio")
     meanstr = config.get("transformsVal", "mean")
     stdstr = config.get("transformsVal", "std")
 
@@ -95,4 +100,4 @@ if __name__ == '__main__':
         train_dataloader.dataset), 'validation': len(valid_dataloader.dataset)}
 
     torch.save(train_dataloader, os.path.join('dataloaders', 'train.pth'))
-    torch.save(train_dataloader, os.path.join('dataloaders', 'test.pth'))
+    torch.save(valid_dataloader, os.path.join('dataloaders', 'test.pth'))
